@@ -1,0 +1,10 @@
+#
+#Mon Sep 05 10:49:29 CEST 2016
+operators=-~as~envelope~*~csv_file~/~mod~?~and~\=~\!\=~\:~+~read~first_with~.~>~length~internal_at~simplification~rgb~column_at~at~point~sqrt~abs~<\=~<~or~sin~one_of~circle~rnd~line~flip~>\=~\!~cos~polygon~where~overlaps~empty~as_matrix~inter~cone~square~any_location_in~distance_to~closest_points_with~^~direction_to~gauss~exp~first~overlapping~closest_to~max~at_distance~union~sum~with_precision~row_at~collect~not~translated_to~rectangle~in~sort_by~last~mean
+plugins=msi.gama.core~ummisco.gama.opengl
+attributes=geometries~area~x~y~keys
+statements=action~do~create~arg~set~if~loop~ask~else~save~let~switch~match~return~add~put~init~aspect~draw~release~write~default~reflex~output~display~display_population~chart~data
+skills=reflex~moving
+constants=minute
+types=string~list~int~unknown~file~geometry~point~agent~rgb~float~date~bool~matrix~map~container
+actions=error~write~debug~die~tell~_step_~_init_~pause~halt~move~wander~goto~follow
