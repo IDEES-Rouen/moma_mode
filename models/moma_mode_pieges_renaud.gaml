@@ -23,14 +23,15 @@ model MOMAFly7S1M
 global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 {
 
+	map<SpatObj,float> proba_par_Spat;
 	
-	float coeff_larve <- 11.0;
-	float coeff_oeuf <- 17.9;
-	float coeff_nymphe <- 14.0;
+	int coeff_larve <- 11;
+	int coeff_oeuf <- 17;
+	int coeff_nymphe <- 14;
 	/**********************
 	 * A CHANGER (importation fichiers t°)
 	 ***********************/
-bool fin <- false; 
+	bool fin <- false; 
 	int fin_cycle <- 99999999;
 	bool fin_sim <- false update: fin and cycle > fin_cycle;
 	int year <- 2015;
@@ -123,11 +124,14 @@ bool fin <- false;
 	/****************
 	 * SCENARIOS 
 	 ****************/
-	 int NB_ADULT_FEMALE <- 100; //parameter: "Nb female per a breeding site" category: "Aedes scenario"; 
-	 list<int> listOrigBs <- [2,7,34,44,73,77,99,136,139,153,170];//,3954,2428,1203,3352,1345,2079] ;//parameter: "N° Breeding site lists" category: "Aedes scenario"; 
+	 int NB_ADULT_FEMALE <- 500; //parameter: "Nb female per a breeding site" category: "Aedes scenario"; 
+	 int scenario <- 5;
+	 list<int> listOrigBs <- [];
+	 int nBornPlaces <- 0;
+	 //,3954,2428,1203,3352,1345,2079] ;//parameter: "N° Breeding site lists" category: "Aedes scenario"; 
 	 
-	
-	
+
+
 	/*************************************************
 	 * 				AEDES'PARAMETERS
 	 *************************************************/
@@ -402,20 +406,40 @@ bool fin <- false;
 		do distribuer_popmen;
 		do createPieges;
 		
-		//create scenarios where Aedes born in different BS
-		if(listOrigBs != [])
-		{
-			loop i from: 0 to: length(listOrigBs)-1
-			{
-				do createAedes (listOrigBs[i]);				
+		
+		
+		
+		switch scenario {
+			match 1 {
+				proba_par_Spat <- SpatObj as_map (each::1.0);
+			}
+			match 2 {
+				proba_par_Spat <- SpatObj as_map (each::each.strClass = "builtup" ? 1.0:0.0);
+			}
+			match 3 {
+				proba_par_Spat <- SpatObj as_map (each::float(each.tot_gites));
+			}
+			match 4 {
+				proba_par_Spat <- SpatObj as_map (each::float(each.tot_gites + each.tot_gites * each.nmen));
+			}
+			match 5 {
+				proba_par_Spat <- SpatObj as_map (each::float(each.tot_gites + each.tot_gites * each.nmen + each.tot_gites * each.nhab));
 			}
 		}
-			
+		list<SpatObj> SpatavecFemales;
+		list<SpatObj> SpatAvecGites <- SpatObj where (each.has_gites);
+		loop times: NB_ADULT_FEMALE {
+			SpatObj le_chosen_one <- proba_par_Spat.keys[rnd_choice(proba_par_Spat.values)];
+			SpatavecFemales << (SpatAvecGites closest_to le_chosen_one.location);
+			do createOneAedes(le_chosen_one);
+		}
+		do create_oeufs_larves_nymphes(SpatavecFemales);
+		
+	
 		if(bCheckActStat)
 		{
 			create Stat;
-		}
-			
+		}	
 	}
 	
 	reflex updateRainfalls when: bNewDay {
@@ -632,20 +656,12 @@ bool fin <- false;
   		return newCol;
   	}
 
-  	
-  	/*************************************************
+	/*************************************************
   	 * instantiate aedes agents in different scenarios
   	 *************************************************/	
-	action createAedes(int numBs)
-	{
-		create Aedes number: NB_ADULT_FEMALE
-		{
-			location <- SpatObj[numBs].location;
-			bornObj <-  SpatObj[numBs];//(SpatObj) first_with (each.location = self.location);
-			bornLoc <- location;
-			perception_area <- shape + PERCEPTION_RADIUS;
-			iAge <- 0; 
-			ask bornObj {
+  	
+  	action create_oeufs_larves_nymphes(list<SpatObj> bornObjs) {
+  		ask bornObjs {
 				bool inside <- flip(0.5);
 				loop times:int(coeff_oeuf)   {
 					if (inside) {
@@ -678,23 +694,21 @@ bool fin <- false;
 					
 				}	
 				
-			}
-		}
-		
-		//create Dispersal shape if required
-		if(bDisprsShpNeed)
+			} 
+  	}
+  	action createOneAedes(SpatObj obj) {
+  		create Aedes 
 		{
-			ask SpatObj[numBs] 
-			{
-				create Dispersal 
-				{
-					strOrigSpatObj <- SpatObj[numBs].name;
-					myself.myMaxDisp <- self;
-				}
-			}
+			location <- any_location_in(obj);
+			bornObj <-  obj;//(SpatObj) first_with (each.location = self.location);
+			bornLoc <- location;
+			perception_area <- shape + PERCEPTION_RADIUS;
+			iAge <- 0; 
+			
 		}
-	}	
 		
+  	}
+
 	/*****************************************
 	 * load daily weather data from CSV file
 	 * ******************************************/
@@ -2397,6 +2411,8 @@ grid cell_gites_out file: grid_gites_out {
 		float fSpatObjWaterTempCIn;
 		float fSpatObjWaterTempCOut;
 		
+		int tot_gites -> { iNbBsInNoWater + iNbBsOutNoWater + iNbBsInWithWater + iNbBsOutWithWater};
+		bool has_gites -> {(tot_gites) > 0};
 		int iNbBsInNoWaterMax;
 		int iNbBsInNoWaterMin;
 		int iNbBsOutNoWaterMax;
@@ -2413,7 +2429,8 @@ grid cell_gites_out file: grid_gites_out {
 	
 		int iNbBsInWithWater;
 		int iNbBsOutWithWater;
-			
+		
+		int iBornAedes <- 0;
 		
 		int iCapaHaveEgg;
 		int iWaitStckEggIn <- 0;
@@ -2568,6 +2585,10 @@ grid cell_gites_out file: grid_gites_out {
 				do calNbBsNoWater;
 			}
 			
+			if (self.strClass = 'eau') {
+				self.iNbBsOutWithWater <- 0;
+				self.iNbBsOutNoWater <- 0;
+			}
 			//fInitPop <- spcClass.fRecCapaRate * shape.area;
 			fInitPop <- nhab; // modifs renaud
 			fHourDensPop <- fInitPop/shape.area;			
@@ -2615,7 +2636,8 @@ grid cell_gites_out file: grid_gites_out {
 			else
 			{
 				fPorosity <- spcClass.fPorosityAvg;
-			}		
+			}
+			
 		}
 		
 		

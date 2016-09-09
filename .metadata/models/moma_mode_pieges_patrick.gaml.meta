@@ -1,10 +1,10 @@
 #
-#Mon Sep 05 11:52:39 CEST 2016
+#Fri Sep 09 11:36:35 CEST 2016
 operators=-~as~envelope~*~and~>~csv_file~as_matrix~point~length~column_at~/~mod~?~\=~\!\=~\:~+~read~first_with~.~internal_at~simplification~rgb~flip~rnd~at~<~<\=~round~where~closest_to~at_distance~poisson~>\=~sin~one_of~circle~line~distance_to~\!~or~cos~polygon~overlaps~empty~inter~cone~square~any_location_in~closest_points_with~^~direction_to~gauss~exp~first~overlapping~max~union~intersects~sum~with_precision~row_at~min~collect~not~translated_to~rectangle~in~sort_by~last~mean~index_of~abs~every
 plugins=msi.gama.core
 attributes=geometries~area~x~y~points~perimeter~keys
 statements=action~do~create~arg~ask~set~if~loop~else~save~let~switch~match~return~put~add~write~init~reflex~aspect~draw~release~default~output~display~display_population~chart~data~genetic
 skills=reflex~moving~grid
 constants=minute~darkgreen~pi~black~white~max_float~blue~magenta~red
-types=string~list~int~unknown~file~geometry~point~agent~rgb~float~date~bool~matrix~map~container
-actions=error~write~debug~die~tell~_step_~_init_~pause~halt~move~wander~goto~follow
+types=string~list~int~unknown~file~geometry~point~agent~rgb~float~bool~date~matrix~map~container
+actions=debug~error~tell~write~die~_init_~_step_~halt~pause~follow~goto~move~wander
