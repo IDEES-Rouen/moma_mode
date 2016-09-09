@@ -1,0 +1,71 @@
+
+val nbAdultFemale = Val[Int]
+val coeffLarve = Val[Double]
+val coeffOeuf = Val[Double]
+val coeffNymphe = Val[Double]
+val avgEggBSSurface = Val[Double]
+val uLambda = Val[Double]
+val aLambda = Val[Double]
+val bLambda = Val[Double]
+val distGitesout = Val[Double]
+val globalError = Val[Double]
+val total_local_error = Val[Double]
+
+val seed = Val[Long]
+
+val gama = 
+  GamaTask( "/home/reyman/Projets/moma_env/", "models/moma_mode_pieges_renaud.gaml", "MOMAFly", 48960) set (
+    gamaInputs += (nbAdultFemale, "NB_ADULT_FEMALE"),
+    gamaInputs += (coeffLarve, "coeff_larve"),
+    gamaInputs += (coeffOeuf, "coeff_oeuf"),
+    gamaInputs += (coeffNymphe, "coeff_nymphe"),
+    gamaInputs += (avgEggBSSurface, "AVG_EGG_BSSURFACE"),
+    gamaInputs += (uLambda, "u_lambda"),
+    gamaInputs += (aLambda, "a_lambda"),
+    gamaInputs += (bLambda, "b_lambda"),
+    gamaInputs += (distGitesout, "dist_gitesout"),
+    
+    nbAdultFemale := 100, // 100 ET 1000 PAR 10
+    coeffLarve := 1.0, // 0.0 ET 20.0 PAR 1
+    coeffOeuf := 1.0, // 0.0 ET 20.0 PAR 1
+    coeffNymphe := 1.0, // 0.0 ET 20.0 PAR 1
+    avgEggBSSurface := 10.0, // 10.0 ET 400.0 PAR 10
+    uLambda := 1.0, // 0.0 ET 10.0 PAR 1
+    aLambda := 1.0, // 0.0 ET 15.0 PAR 1
+    bLambda := 1.0, // 0.0 ET 10.0 PAR 1
+    distGitesout := 2.0, // 1.0 ET 100.0 PAR 1
+    
+    gamaSeed := seed,
+    gamaVariableOutputs += ("global_error", globalError),
+    gamaVariableOutputs += ("total_local_error", total_local_error) 
+  )
+
+// Define the island model with 2,000 concurrent islands.
+// The algorithm stops after 200,000 islands evaluations.
+val evolution =
+  SteadyStateEvolution(
+    algorithm =   
+      NSGA2(
+        mu = 200,
+        genome = Seq(nbAdultFemale in (100.0, 1000.0),
+        coeffLarve in (0.0, 20.0),
+        coeffOeuf in (0.0, 20.0),
+        coeffNymphe in (0.0, 20.0),
+        avgEggBSSurface in (10.0, 400.0),
+        uLambda in (0.0, 10.0),
+        aLambda in (0.0, 15.0),
+        bLambda in (0.0, 10.0),
+        distGitesout in (1.0, 100.0)),
+        objectives = Seq(total_local_error),
+        replication = Replication(seed = seed, aggregation = Seq(median), max = 100)
+      ),
+    termination = 200000,
+    parallelism = 500,
+  )
+
+val savePopulationHook = SavePopulationHook(evolution, workDirectory / "/results/")
+
+val env = LocalEnvironment(4)
+//val env = EGIEnvironment("vo.complex-systems.eu")
+
+(island on env hook savePopulationHook)

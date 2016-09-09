@@ -3634,7 +3634,17 @@ grid cell_gites_out file: grid_gites_out {
 /////////////////////////////////////////////////////////
 experiment MOMAFly type: gui 
 {
-	
+	parameter "NB_ADULT_FEMALE" var: NB_ADULT_FEMALE min: 100 max: 1000 step: 10;
+	parameter "scenario" var: scenario min: 1 max: 5 step: 1;
+	parameter "coeff_larve" var: coeff_larve min: 0 max: 20 step: 1;
+	parameter "coeff_oeuf" var: coeff_oeuf min: 0 max: 20 step: 1;
+	parameter "coeff_nymphe" var: coeff_nymphe min: 0 max: 20 step: 1;
+
+	parameter "AVG_EGG_BSSURFACE" var: AVG_EGG_BSSURFACE min: 10.0 max: 400.0 step: 10.0;
+	parameter "u_lambda" var: u_lambda min: 0 max: 10 step: 1;
+	parameter "a_lambda" var: a_lambda min: 0 max: 15 step: 1;
+	parameter "b_lambda" var: b_lambda min: 0 max: 10 step: 1;
+	parameter "dist_gitesout" var: dist_gitesout min: 1 max: 100 step: 1;
 	
 	/** Insert here the definition of the input and output of the model */
 	output 
