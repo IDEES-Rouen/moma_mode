@@ -409,7 +409,7 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 		
 		
 		
-		switch scenario {
+		switch int(scenario) {
 			match 1 {
 				proba_par_Spat <- SpatObj as_map (each::1.0);
 			}

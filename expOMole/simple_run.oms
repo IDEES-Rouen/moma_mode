@@ -1,20 +1,24 @@
-val nbAdultFemale = Val[Int]
-val coeffLarve = Val[Int]
-val coeffOeuf = Val[Int]
-val coeffNymphe = Val[Int]
+val nbAdultFemale = Val[Double]
+val coeffLarve = Val[Double]
+val coeffOeuf = Val[Double]
+val coeffNymphe = Val[Double]
 val avgEggBSSurface = Val[Double]
-val uLambda = Val[Int]
-val aLambda = Val[Int]
-val bLambda = Val[Int]
-val distGitesout = Val[Int]
+val uLambda = Val[Double]
+val aLambda = Val[Double]
+val bLambda = Val[Double]
+val distGitesout = Val[Double]
 val globalError = Val[Double]
 val total_local_error = Val[Double]
-val scenario = Val[Int]
+val scenario = Val[Double]
 
 val seed = Val[Long]
 
-val gama = 
-  GamaTask( workDirectory / "moma_env", "models/moma_mode_pieges_renaud.gaml", "MOMAFly", 48960) set (
+//EGIAuthentication() = P12Certificate(encrypted, "/iscpif/users/rey/CERTIF/certificats-grille-201617.p12")
+
+// > iscpif/users/rey/REPOSITORY_GIT/moma_mode
+//  GamaTask( workDirectory / "moma_env", "models/moma_mode_pieges_renaud.gaml", "MOMAFly", 48960) set (
+
+val gama = GamaTask( "/iscpif/users/rey/REPOSITORY_GIT/moma_mode", "models/moma_mode_pieges_renaud.gaml", "MOMAFly", 48960) set (
     gamaInputs += (nbAdultFemale, "NB_ADULT_FEMALE"),
     gamaInputs += (coeffLarve, "coeff_larve"),
     gamaInputs += (coeffOeuf, "coeff_oeuf"),
@@ -24,9 +28,9 @@ val gama =
     gamaInputs += (aLambda, "a_lambda"),
     gamaInputs += (bLambda, "b_lambda"),
     gamaInputs += (distGitesout, "dist_gitesout"),
-    gamaInputs += (scenario, "sce"),
+    gamaInputs += (scenario, "scenario"),
     
-    nbAdultFemale := 100, // 100 ET 1000 PAR 10 (potentiellement on ira plus tard vers 2000)
+    nbAdultFemale := 50, // 100 ET 1000 PAR 10 (potentiellement on ira plus tard vers 2000)
     coeffLarve := 1, // 0.0 ET 20.0 PAR 1
     coeffOeuf := 1, // 0.0 ET 20.0 PAR 1
     coeffNymphe := 1, // 0.0 ET 20.0 PAR 1
@@ -35,11 +39,12 @@ val gama =
     aLambda := 1, // 0.0 ET 15.0 PAR 1
     bLambda := 1, // 0.0 ET 10.0 PAR 1
     distGitesout := 2, // 1.0 ET 100.0 PAR 1
-    scenario := 1, // 1 et 5 PAR 1
-
+    scenario := 1.5, // 1 et 5 PAR 1
+    seed := 42,
     gamaSeed := seed,
     gamaVariableOutputs += ("global_error", globalError),
     gamaVariableOutputs += ("total_local_error", total_local_error) 
   )
   
-  gama hook ToStringHook()
+  val moma = (gama hook ToStringHook())
+  moma.start
